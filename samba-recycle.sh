@@ -13,7 +13,8 @@ RECYCLE_AGE=28
 
 grep -E '^path\s*=\s*.+' /etc/samba/smb.conf | sed 's/^path\s*=\s*//' | while read line; do
 	if [ -d "$line/.recycle" ]; then
-		find "$line/.recycle" -mindepth 1 -mtime +"$RECYCLE_AGE" -delete
+		find "$line/.recycle" -mindepth 1 -mtime +"$RECYCLE_AGE" ! -type d -delete
 		find "$line/.recycle" -mindepth 1 -type d -empty -delete
 	fi
 done
+
