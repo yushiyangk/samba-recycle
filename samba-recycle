@@ -1,0 +1,76 @@
+#!/usr/bin/env bash
+
+# Remove files from .recycle in samba shares that are older than 28 days (configurable)
+# Usage: samba-recycle [-h|--help] [<recycle_age>]
+#
+# Yu Shiyang <yu.shiyang@gnayihs.uy>
+
+name="samba-recycle"
+
+help="Usage: samba-recycle [-h|--help] [<recycle_age>]"
+help="$help\n"
+help="$help\nArguments:"
+help="$help\n  <recycle_age>  Files last modified this number of days ago will be removed; default is 28"
+help="$help\n"
+help="$help\nOptions:"
+help="$help\n  -h, -?, --help  Display this help message and exit"
+
+recycle_age=28
+recycle_age_override=
+
+argpos=1
+while [ $# -gt 0 ]; do
+	case "$1" in
+		--help)
+			echo -e "$help"
+			exit 0
+			;;
+		--*)
+			echo "$name: invalid option '$1'" >& 2
+			exit 2
+			;;
+		-*)
+			for i in $(seq 1 $((${#1} - 1))); do
+				flag="${1:$i:1}"
+				case "$flag" in
+					h|\?)
+						echo -e "$help"
+						exit 0
+						;;
+					*)
+						echo "$name: invalid option '$flag'" >& 2
+						exit 2
+				esac
+			done
+			;;
+		*)
+			if [ $argpos -eq 1 ]; then
+				case "$1" in
+					''|*[!0-9]*)
+						echo "$name: invalid recycle age"
+						exit 2
+						;;
+					*) recycle_age_override="$1" ;;
+				esac
+			else
+				echo "$name: invalid argument '$1'" >& 2
+				exit 2
+			fi
+	esac
+	shift
+done
+
+export SAMBA_RECYCLE_CONFIG_FILE='/etc/opt/samba-recycle.conf'
+
+recycle_age_override="${recycle_age_override:-"$( sed -n "s/^\s*recycle_age\s*=\s*\(.\+\)/\1/p" "$SAMBA_RECYCLE_CONFIG_FILE" | xargs -n 1 )"}"
+recycle_age="${recycle_age_override:-"$recycle_age"}"
+
+unset SAMBA_RECYCLE_CONFIG_FILE
+
+
+grep -E '^path\s*=\s*.+' /etc/samba/smb.conf | sed 's/^path\s*=\s*//' | while read line; do
+	if [ -d "$line/.recycle" ]; then
+		find "$line/.recycle" -mindepth 1 -mtime +"$recycle_age" ! -type d -delete
+		find "$line/.recycle" -mindepth 1 -type d -empty -delete
+	fi
+done
