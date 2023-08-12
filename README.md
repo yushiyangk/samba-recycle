@@ -10,10 +10,12 @@ Clean up old recycled files in a Samba share
 
 	```bash
 	sudo chown -R root: /opt/samba-recycle
-	sudo chmod u+x,o-wx /opt/samba-recycle/samba-recycle
+	sudo chmod a+rx,o-w /opt/samba-recycle/samba-recycle
 	```
 
-4. [Add `/opt/samba-recycle` to `PATH`](#add-optsamba-recycle-or-optbin-to-sudo-path) (or add `/opt/bin` to `PATH` and add symlink `ln -s /opt/samba-recycle/samba-recycle /opt/bin/samba-recycle`)
+	All users will be able to execute `samba-recycle`, but they will still only be able to delete files for which they have write permissions.
+
+3. [Add `/opt/samba-recycle` to `PATH`](#add-optsamba-recycle-or-optbin-to-sudo-path) (or add `/opt/bin` to `PATH` and add symlink `ln -s /opt/samba-recycle/samba-recycle /opt/bin/samba-recycle`)
 
 ### Configure
 
