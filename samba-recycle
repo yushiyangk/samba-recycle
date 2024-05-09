@@ -7,7 +7,7 @@
 
 name="samba-recycle"
 
-help="Usage: samba-recycle [-h|--help] [<recycle_age>]"
+help="Usage: $name [-h|--help] [<recycle_age>]"
 help="$help\n"
 help="$help\nArguments:"
 help="$help\n  <recycle_age>  Files last modified this number of days ago will be removed; default is 28"
